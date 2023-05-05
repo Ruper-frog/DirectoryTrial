@@ -43,6 +43,8 @@ class Program
                 File.Move(file, newFilePath);
             }
         }
+        Console.WriteLine();
+
         Console.WriteLine("Do You Want To Open The Folder?\n\nPress Enter If You Do\n\nTo Leave Press Any Other Button");
 
         ConsoleKeyInfo keyinfo = Console.ReadKey();
@@ -60,5 +62,7 @@ class Program
             fileExplorer.Refresh();
         }
         Console.WriteLine();
+
+        Console.ReadKey();
     }
 }
