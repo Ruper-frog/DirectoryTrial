@@ -1,64 +1,64 @@
-﻿using System.IO;
+﻿using System;
 using System.Collections.Generic;
-using System;
-using System.Globalization;
-using System.Reflection.Emit;
+using System.Diagnostics;
+using System.IO;
+using System.Text.RegularExpressions;
 
 class Program
 {
     static void Main(string[] args)
     {
-        /*string sourceDirectoryQ = @"C:\MyPhotos";
-        string newDirectoryName = "Sorted";
-        string newDirectoryPath = Path.Combine(sourceDirectory, newDirectoryName);
+        Console.WriteLine("Please Enter The Directory Of The Folder");
 
-        // Create the new directory
-        Directory.CreateDirectory(newDirectoryPath);*/
-
-        string sourceDirectory = @"C:\Users\ruper\OneDrive\שולחן העבודה\New folder";
-        string destinationDirectory = @"C:\Users\ruper\OneDrive\שולחן העבודה\Ruper";
+        string sourceDirectory = Console.ReadLine();
 
         // Get all files in the source directory
-        List<string> files = new List<string> (Directory.GetFiles(sourceDirectory));
-
-        List<string> filesNames = new List<string>();
+        List<string> files = new List<string>(Directory.GetFiles(sourceDirectory));
 
         foreach (string file in files)
         {
-            int index = file.IndexOf("1");
+            int YearIndex = file.IndexOf("1");
 
-            int DotIndex = file.LastIndexOf(".");
+            if (YearIndex > 0 && file.Length - YearIndex >= 0)
+            {
+                string Year = file.Substring(YearIndex, 4);
 
-            if (index > 0)
-                filesNames.Add(file.Substring(index, file.Length - index - 1 - (file.Length - DotIndex - 1)));
+                if (!Regex.IsMatch(Year, @"^\d+$"))
+                    continue;
+
+                string newDirectoryName = Year;
+                string newDirectoryPath = Path.Combine(sourceDirectory, newDirectoryName);
+
+                if (!Directory.Exists(newDirectoryPath))
+                {
+                    // Create the new directory
+                    Directory.CreateDirectory(newDirectoryPath);
+                }
+
+                // Determine the new file name and location based on the original file name
+                string fileName = Path.GetFileName(file);
+                string newFilePath = Path.Combine(newDirectoryPath, fileName);
+
+                // Move the file to the new location
+                File.Move(file, newFilePath);
+            }
         }
+        Console.WriteLine("Do You Want To Open The Folder?\n\nPress Enter If You Do\n\nTo Leave Press Any Other Button");
 
-        /*for (int i = 0; i < filesNames.Count; i++)
+        ConsoleKeyInfo keyinfo = Console.ReadKey();
+
+        if (keyinfo.Key == ConsoleKey.Enter)
         {
-            Console.WriteLine(files[i]);
+            // Start a new process for the file explorer
+            Process fileExplorer = new Process();
+            fileExplorer.StartInfo.FileName = sourceDirectory;
+            fileExplorer.StartInfo.UseShellExecute = true;
+            fileExplorer.Start();
 
-            Console.WriteLine(filesNames[i]);
-        }*/
 
-        if (!File.Exists(sourceDirectory))
-        {
-
+            // Refresh the file explorer window
+            fileExplorer.Refresh();
         }
-        files.Reverse();
-
-        /*
-        // Iterate through each file and move it to the new directory
-        foreach (string file in files)
-        {
-            Console.WriteLine(file);
-
-
-            // Determine the new file name and location based on the original file name
-            string fileName = Path.GetFileName(file);
-            string newFilePath = Path.Combine(destinationDirectory, fileName);
-
-            // Move the file to the new location
-            File.Move(file, newFilePath);
-        }*/
+        Console.WriteLine();
     }
 }
