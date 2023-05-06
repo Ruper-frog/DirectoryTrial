@@ -28,7 +28,6 @@ class Program
             fileExplorer.StartInfo.UseShellExecute = true;
             fileExplorer.Start();
 
-
             // Refresh the file explorer window
             fileExplorer.Refresh();
         }
@@ -64,23 +63,25 @@ class Program
                 if (Regex.IsMatch(Year, @"^\d+$"))
                     break;
             }
-
-            string newDirectoryName = Year;
-            string newDirectoryPath = Path.Combine(sourceDirectory, newDirectoryName);
-
-            if (!Directory.Exists(newDirectoryPath))
+            if (!sourceDirectory.Substring(sourceDirectory.Length - 1 - 3, 4).Equals(Year))
             {
-                // Create the new directory
-                Directory.CreateDirectory(newDirectoryPath);
+                string newDirectoryName = Year;
+                string newDirectoryPath = Path.Combine(sourceDirectory, newDirectoryName);
+
+                if (!Directory.Exists(newDirectoryPath))
+                {
+                    // Create the new directory
+                    Directory.CreateDirectory(newDirectoryPath);
+                }
+
+                // Determine the new file name and location based on the original file name
+                string fileName = Path.GetFileName(file);
+                string newFilePath = Path.Combine(newDirectoryPath, fileName);
+
+                // Move the file to the new location
+
+                File.Move(file, newFilePath);
             }
-
-            // Determine the new file name and location based on the original file name
-            string fileName = Path.GetFileName(file);
-            string newFilePath = Path.Combine(newDirectoryPath, fileName);
-
-            // Move the file to the new location
-            File.Move(file, newFilePath);
-
             REPEAT:
                 continue;
         }
