@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Security.Permissions;
 using System.Text.RegularExpressions;
 
 class Program
@@ -17,31 +18,40 @@ class Program
 
         foreach (string file in files)
         {
-            int YearIndex = file.IndexOf("1");
+            int YearIndex = 0;
 
-            if (YearIndex > 0 && file.Length - YearIndex >= 0)
+            string Year = "";
+
+            while (true)
             {
-                string Year = file.Substring(YearIndex, 4);
+                YearIndex = file.IndexOf("1", YearIndex + 1);
 
-                if (!Regex.IsMatch(Year, @"^\d+$"))
-                    continue;
+                if (!(YearIndex != -1 && file.Length - YearIndex >= 0))
+                    goto REPEAT;
 
-                string newDirectoryName = Year;
-                string newDirectoryPath = Path.Combine(sourceDirectory, newDirectoryName);
+                Year = file.Substring(YearIndex, 4);
 
-                if (!Directory.Exists(newDirectoryPath))
-                {
-                    // Create the new directory
-                    Directory.CreateDirectory(newDirectoryPath);
-                }
-
-                // Determine the new file name and location based on the original file name
-                string fileName = Path.GetFileName(file);
-                string newFilePath = Path.Combine(newDirectoryPath, fileName);
-
-                // Move the file to the new location
-                File.Move(file, newFilePath);
+                if (Regex.IsMatch(Year, @"^\d+$"))
+                    break;
             }
+            string newDirectoryName = Year;
+            string newDirectoryPath = Path.Combine(sourceDirectory, newDirectoryName);
+
+            if (!Directory.Exists(newDirectoryPath))
+            {
+                // Create the new directory
+                Directory.CreateDirectory(newDirectoryPath);
+            }
+
+            // Determine the new file name and location based on the original file name
+            string fileName = Path.GetFileName(file);
+            string newFilePath = Path.Combine(newDirectoryPath, fileName);
+
+            // Move the file to the new location
+            File.Move(file, newFilePath);
+
+            REPEAT:
+                continue;
         }
         Console.WriteLine();
 
