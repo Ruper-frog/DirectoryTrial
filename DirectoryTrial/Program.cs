@@ -4,22 +4,39 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 class Program
 {
+    static void ANiceTouch(string Syntax, bool GoBack)
+    {
+        if (GoBack)
+            Console.SetCursorPosition(0, 3);
+
+        foreach (char ch in Syntax) 
+        {
+            Console.Write(ch);
+            Thread.Sleep(15);
+        }
+        Console.Write("\n\r\t\r");
+    }
     static void Main(string[] args)
     {
-        Console.WriteLine("Please Enter The Directory Of The Folder");
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
+
+        Console.CursorVisible = false;
+
+        ANiceTouch("Please Enter The Directory Of The Folder:", false);
 
         string sourceDirectory = Console.ReadLine();
 
-        TheDeed(sourceDirectory);
+        bool Reverse = false;
 
-        TheDeedReverse(sourceDirectory);
+        TheDeed(sourceDirectory, Reverse);
 
         Console.WriteLine();
 
-        Console.WriteLine("Do You Want To Open The Folder?\n\nPress Enter If You Do\n\nTo Leave Press Any Other Button");
+        ANiceTouch("Do You Want To Open The Folder?\n\nPress Enter If You Do\n\nTo Continue Press Any Other Button", false);
 
         ConsoleKeyInfo keyinfo = Console.ReadKey();
 
@@ -34,11 +51,22 @@ class Program
             // Refresh the file explorer window
             fileExplorer.Refresh();
         }
+
         Console.WriteLine();
 
-        Console.ReadKey();
+        ANiceTouch("Do You Regret Your Actions And Want To Go Back?\n\nPress Enter If You Do\n\nTo Leave Press Any Other Button", true);
+
+        keyinfo = Console.ReadKey();
+
+        if (keyinfo.Key == ConsoleKey.Enter)
+        {
+            Reverse = true;
+            TheDeed(sourceDirectory, Reverse);
+        }
+
+        Console.WriteLine();
     }
-    static void TheDeed(string sourceDirectory)
+    static void TheDeed(string sourceDirectory, bool Reverse)
     {
         // Get all files in the source directory
         List<string> files = new List<string>(Directory.GetFiles(sourceDirectory));
@@ -46,7 +74,7 @@ class Program
         List<string> folders = new List<string>(Directory.GetDirectories(sourceDirectory));
 
         foreach (string folder in folders)
-            TheDeed(folder);
+            TheDeed(folder, Reverse);
 
         foreach (string file in files)
         {
@@ -85,39 +113,7 @@ class Program
 
                 File.Move(file, newFilePath);
             }
-        REPEAT:
-            continue;
-        }
-    }
-    static void TheDeedReverse(string sourceDirectory)
-    {
-        // Get all files in the source directory
-        List<string> files = new List<string>(Directory.GetFiles(sourceDirectory));
-
-        List<string> folders = new List<string>(Directory.GetDirectories(sourceDirectory));
-
-        foreach (string folder in folders)
-            TheDeedReverse(folder);
-
-        foreach (string file in files)
-        {
-            int YearIndex = 0;
-
-            string Year = "";
-
-            while (true)
-            {
-                YearIndex = file.IndexOf("1", YearIndex + 1);
-
-                if (!(YearIndex != -1 && file.Length - YearIndex >= 0))
-                    goto REPEAT;
-
-                Year = file.Substring(YearIndex, 4);
-
-                if (Regex.IsMatch(Year, @"^\d+$"))
-                    break;
-            }
-            if (sourceDirectory.Substring(sourceDirectory.Length - 1 - 3, 4).Equals(Year))
+            else if (Reverse)
             {
                 string fileName = Path.GetFileName(file);
                 string newFilePath = Path.Combine(Directory.GetParent(sourceDirectory).FullName, fileName);
@@ -126,7 +122,7 @@ class Program
                 {
                     // Move the file to the new location
                     File.Move(file, newFilePath);
-                    
+
                     if (!Directory.EnumerateFileSystemEntries(sourceDirectory).Any())
                         Directory.Delete(sourceDirectory, true);
                 }
