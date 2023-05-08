@@ -48,9 +48,9 @@ class Program
             {
                 TheDeed(sourceDirectory, Reverse);
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                ANiceTouch("Error: This Path Is Not Of Legal Form\n", false);
 
                 ANiceTouch("The Program Is Going To Restart Itself Now", false);
 
@@ -80,7 +80,7 @@ class Program
 
         Console.WriteLine();
 
-        ANiceTouch("Do You Regret Your Actions And Want To Go Back?\n\nPress Enter If You Do\n\nTo Leave Press Any Other Button", true);
+        ANiceTouch("Do You Regret Your Actions And Want To Go Back?\n\nPress Enter If You Do\n\nTo Leave Press Any Other Button\t\t", true);
 
         keyinfo = Console.ReadKey();
 
