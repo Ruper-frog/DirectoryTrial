@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 class Program
@@ -13,6 +14,8 @@ class Program
         string sourceDirectory = Console.ReadLine();
 
         TheDeed(sourceDirectory);
+
+        TheDeedReverse(sourceDirectory);
 
         Console.WriteLine();
 
@@ -81,6 +84,52 @@ class Program
                 // Move the file to the new location
 
                 File.Move(file, newFilePath);
+            }
+        REPEAT:
+            continue;
+        }
+    }
+    static void TheDeedReverse(string sourceDirectory)
+    {
+        // Get all files in the source directory
+        List<string> files = new List<string>(Directory.GetFiles(sourceDirectory));
+
+        List<string> folders = new List<string>(Directory.GetDirectories(sourceDirectory));
+
+        foreach (string folder in folders)
+            TheDeedReverse(folder);
+
+        foreach (string file in files)
+        {
+            int YearIndex = 0;
+
+            string Year = "";
+
+            while (true)
+            {
+                YearIndex = file.IndexOf("1", YearIndex + 1);
+
+                if (!(YearIndex != -1 && file.Length - YearIndex >= 0))
+                    goto REPEAT;
+
+                Year = file.Substring(YearIndex, 4);
+
+                if (Regex.IsMatch(Year, @"^\d+$"))
+                    break;
+            }
+            if (sourceDirectory.Substring(sourceDirectory.Length - 1 - 3, 4).Equals(Year))
+            {
+                string fileName = Path.GetFileName(file);
+                string newFilePath = Path.Combine(Directory.GetParent(sourceDirectory).FullName, fileName);
+
+                if (!Directory.Exists(newFilePath))
+                {
+                    // Move the file to the new location
+                    File.Move(file, newFilePath);
+                    
+                    if (!Directory.EnumerateFileSystemEntries(sourceDirectory).Any())
+                        Directory.Delete(sourceDirectory, true);
+                }
             }
             REPEAT:
                 continue;
