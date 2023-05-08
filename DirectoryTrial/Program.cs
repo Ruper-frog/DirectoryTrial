@@ -26,13 +26,39 @@ class Program
 
         Console.CursorVisible = false;
 
-        ANiceTouch("Please Enter The Directory Of The Folder:", false);
-
-        string sourceDirectory = Console.ReadLine();
+        string sourceDirectory = "";
 
         bool Reverse = false;
 
-        TheDeed(sourceDirectory, Reverse);
+        bool Restart = true;
+
+        while (Restart)
+        {
+            Console.Clear();
+
+            Console.SetCursorPosition(0, 0);
+
+            ANiceTouch("Please Enter The Directory Of The Folder:", false);
+
+            sourceDirectory = Console.ReadLine();
+
+            Restart = false;
+
+            try
+            {
+                TheDeed(sourceDirectory, Reverse);
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+
+                ANiceTouch("The Program Is Going To Restart Itself Now", false);
+
+                Thread.Sleep(3000);
+
+                Restart = true;
+            }
+        }
 
         Console.WriteLine();
 
